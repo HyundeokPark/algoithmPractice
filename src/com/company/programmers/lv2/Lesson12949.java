@@ -27,11 +27,16 @@ public class Lesson12949 {
      */
     public int[][] solution(int[][] arr1, int[][] arr2) {
         int[][] answer = new int[arr1.length][arr2[0].length];
-        for(int i=0; i< arr1.length;i++){
-            int[] row = arr1[i];
-            for(int j=0; j< arr2.length; j++){
-                for(int w=0; w<arr2.length; w++){
-                    answer[i][j] += row[w] * arr2[w][j];
+//        for(int i=0; i<arr1.length; i++){
+//            int[] row = arr1[i];
+//            for(int j=0; j< row.length; j++){
+//                    answer[i][j] += row[i] * arr2[j][i];
+//            }
+//        }
+        for(int i = 0 ; i < arr1.length ; ++i){
+            for(int j = 0 ; j < arr2[0].length ; ++j){
+                for(int k = 0 ; k < arr1[0].length ; ++k) {
+                    answer[i][j] += arr1[i][k] * arr2[k][j];
                 }
             }
         }
@@ -40,3 +45,5 @@ public class Lesson12949 {
     }
 
 }
+
+
