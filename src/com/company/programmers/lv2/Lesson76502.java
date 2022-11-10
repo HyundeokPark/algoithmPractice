@@ -6,7 +6,7 @@ public class Lesson76502 {
 
     public static void main(String[] args) {
         Lesson76502 lesson = new Lesson76502();
-        String s = "";
+        String s = "}]()[{";
         System.out.println(lesson.solution(s));
     }
 
@@ -38,8 +38,6 @@ public class Lesson76502 {
      */
     public int solution(String s) {
         int answer = 0;
-        Stack stack = new Stack();
-
         String target = s;
         //문자열을 한번씩 회전 시키고, 올바른 문자열인지 판단하는 반복문
         for(int i=0; i<s.length(); i++){
@@ -58,7 +56,47 @@ public class Lesson76502 {
      * @param target
      */
     public boolean validateTarget(String target){
-        return false;
+        Stack sStack = new Stack();//소괄호
+        Stack mStack = new Stack();//중괄호
+        Stack lStack = new Stack();//대괄호
+
+        for(String str : target.split("")){
+            if(str.equals("(") || str.equals(")")){
+                if(sStack.isEmpty() && str.equals(")")){
+                    return false;
+                }else if(str.equals(")") && sStack.peek().equals(")")){
+                    return false;
+                }
+                if(str.equals(")") && sStack.peek().equals("(")){
+                    sStack.pop();
+                }else{
+                    sStack.push(str);
+                }
+            }else if(str.equals("{") || str.equals("}")){
+                if(mStack.isEmpty() && str.equals("}")){
+                    return false;
+                }else if(str.equals("}") && mStack.peek().equals("}")){
+                    return false;
+                }
+                if(str.equals("}") && mStack.peek().equals("{")){
+                    mStack.pop();
+                }else{
+                    mStack.push(str);
+                }
+            }else{
+                if(lStack.isEmpty() && str.equals("]")){
+                    return false;
+                }else if(str.equals("]") && lStack.peek().equals("]")){
+                    return false;
+                }
+                if(str.equals("]") && lStack.peek().equals("[")){
+                    lStack.pop();
+                }else{
+                    lStack.push(str);
+                }
+            }
+        }
+        return true;
     }
 
     /**
