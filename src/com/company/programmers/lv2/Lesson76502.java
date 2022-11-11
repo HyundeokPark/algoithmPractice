@@ -33,6 +33,10 @@ public class Lesson76502 {
      * 2. 그리고 예시를 보면 한가지 규칙을 알수있는데, 결국 괄호가 열리면 닫혀야 올바른 문자열이 된다.
      * 3. 즉, 예전 처럼 스택을 이용하면 해결할 수 있을 것 같다.
      * 4. 문자열 s를 한번씩 왼쪽으로 회전시켜 확인해 보자.
+     * 20221111 추가사항
+     * 5. 한가지 간과한것이 있는데, ([)] 와 같은 문자열은 위 문제에 따르면 올바르지 않다.
+     * 6. 해당 부분에 대한 필터를 추가로 해줘야 한다... How?..
+     * 7. 3개의 Stack으로 나눴지만, 1개의 Stack만으로 해결하면 할 수 있을것 같다. 정확성만 체크하므로 시간은 신경쓰지말자!
      * @param s
      * @return
      */
@@ -56,47 +60,28 @@ public class Lesson76502 {
      * @param target
      */
     public boolean validateTarget(String target){
-        Stack sStack = new Stack();//소괄호
-        Stack mStack = new Stack();//중괄호
-        Stack lStack = new Stack();//대괄호
-
+        Stack stack = new Stack();
+        boolean result = false;
         for(String str : target.split("")){
-            if(str.equals("(") || str.equals(")")){
-                if(sStack.isEmpty() && str.equals(")")){
-                    return false;
-                }else if(str.equals(")") && sStack.peek().equals(")")){
-                    return false;
-                }
-                if(str.equals(")") && sStack.peek().equals("(")){
-                    sStack.pop();
-                }else{
-                    sStack.push(str);
-                }
-            }else if(str.equals("{") || str.equals("}")){
-                if(mStack.isEmpty() && str.equals("}")){
-                    return false;
-                }else if(str.equals("}") && mStack.peek().equals("}")){
-                    return false;
-                }
-                if(str.equals("}") && mStack.peek().equals("{")){
-                    mStack.pop();
-                }else{
-                    mStack.push(str);
-                }
+            if(str.equals("(") || str.equals("{") || str.equals("[")){
+                stack.push(str);
             }else{
-                if(lStack.isEmpty() && str.equals("]")){
-                    return false;
-                }else if(str.equals("]") && lStack.peek().equals("]")){
-                    return false;
-                }
-                if(str.equals("]") && lStack.peek().equals("[")){
-                    lStack.pop();
-                }else{
-                    lStack.push(str);
-                }
+              if(stack.isEmpty() || stack.peek().equals(")") || stack.peek().equals("}") || stack.peek().equals("]")){
+                  return result;
+              }
+              if(stack.peek().equals("(") && str.equals(")")){
+                  stack.pop();
+              }else if(stack.peek().equals("{") && str.equals("}")){
+                  stack.pop();
+              }else if(stack.peek().equals("[") && str.equals("]")){
+                  stack.pop();
+              }
             }
         }
-        return true;
+        if(stack.isEmpty()){
+            result = true;
+        }
+        return result;
     }
 
     /**
