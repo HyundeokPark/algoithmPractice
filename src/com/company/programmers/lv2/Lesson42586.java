@@ -30,13 +30,12 @@ public class Lesson42586 {
             workers.add(worker);
         }
 
-
-
         int count = 0;
         while(!workers.isEmpty()){
-            this.recursive(workers,count);
+            count = this.recursive(workers,count);
             if(count>=1){
                 deployedWork.add(count);
+                count = 0;
             }
             this.progressAllWorker(workers);
         }
@@ -45,12 +44,14 @@ public class Lesson42586 {
         return answer;
     }
     public int recursive(List<Worker> workers, int count){
-        int workCount = count;
+//        int workCount = count;
         if(workers.get(0).isDone()){
             workers.remove(0);
 //            workCount++;
+            if(!workers.isEmpty()){
+                count = recursive(workers, count);
+            }
             count++;
-            count = recursive(workers, count);
         }
         return count;
 //        return workCount;
