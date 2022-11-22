@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Lesson92341 {
@@ -28,6 +31,7 @@ public class Lesson92341 {
     }
     public int[] solution(int[] fees, String[] records) {
         int[] answer = {};
+
         Map<String,ParkingFee> parkingFees = new HashMap<>();
         List<ParkingFee> answerList = new ArrayList<>();
 
@@ -35,7 +39,15 @@ public class Lesson92341 {
         defaultFee = fees[1];
         unitTime = fees[2];
         unitFee = fees[3];
+        //중복없애고.. 차번호 작은순으로.. 정.렬!
+        List<String> carNumberList = Arrays.stream(records)
+                                        .map( s-> s.split(" ")[1])
+                                        .collect(Collectors.toSet())
+                                        .stream()
+                                        .sorted()
+                                        .collect(Collectors.toList());
 
+        Map<String,Integer> tmp = carNumberList.stream().collect(Collectors.toMap(Function.identity(),e ->0));
         //초기화
         for(String record : records){
             String[] tmpRecords = record.split(" ");
@@ -44,27 +56,35 @@ public class Lesson92341 {
             String type = tmpRecords[2];
 
             ParkingFee pk = parkingFees.get(carNumber);
-            if(pk == null){
-                ParkingFee newPk = new ParkingFee(carNumber, time, type);
-                parkingFees.put(carNumber,newPk);
-            } else{
-                if(type.equals("IN")){
-                    pk.entryTime = time;
-                }else{
-                    pk.exitTime = time;
+            if(type.equals("OUT")){
+                pk.exitTime = time;
+                pk.calcFees();
+                tmp.put(pk.carNumber, tmp.get(pk.carNumber)+pk.parkingFees);
+                parkingFees.remove(pk.carNumber);
+            }else{
+                if(pk == null){
+                    ParkingFee newPk = new ParkingFee(carNumber, time, type);
+                    parkingFees.put(carNumber,newPk);
                 }
             }
         }
-        answerList = parkingFees.values().stream().sorted(
-            new Comparator<ParkingFee>() {
-                @Override
-                public int compare(ParkingFee o1, ParkingFee o2) {
-                    return String.CASE_INSENSITIVE_ORDER.compare(o1.carNumber , o2.carNumber);
-                }
-            }
-        ).collect(Collectors.toList());
-
-        answer = answerList.stream().mapToInt(ParkingFee::getParkingFees).toArray();
+        if(!parkingFees.isEmpty()){
+            parkingFees.entrySet().stream().forEach(e-> {
+                e.getValue().calcFees();
+//                System.out.println(tmp.get(e.getKey()) + e.getValue().parkingFees);
+                tmp.put(e.getKey(),tmp.get(e.getKey()) + e.getValue().parkingFees);
+            });
+        }
+//        answerList = tmp.values().stream().sorted(Integer::compareTo)
+//            new Comparator<Integer>() {
+//                @Override
+//                public int compare(Integer o1, Integer o2) {
+//                    return String.CASE_INSENSITIVE_ORDER.compare(o1.carNumber , o2.carNumber);
+//                }
+//            }
+//        .collect(Collectors.toList());
+        List<Integer> tt  = tmp.values().stream().sorted(Integer::compareTo).collect(Collectors.toList());
+//        answer = answerList.stream().mapToInt(ParkingFee::getParkingFees).toArray();
         return answer;
     }
 
@@ -103,8 +123,8 @@ public class Lesson92341 {
             int[] tmpEntryTimes = Arrays.stream(entryTime.split(":")).mapToInt(Integer::parseInt).toArray();
             int[] tmpExitTimes = Arrays.stream(exitTime.split(":")).mapToInt(Integer::parseInt).toArray();
 
-            int hour = (tmpExitTimes[0] - tmpEntryTimes[0]) / 60;
-            int minuite = Math.abs(tmpExitTimes[1] - tmpEntryTimes[1]);
+            int hour = (tmpExitTimes[0] - tmpEntryTimes[0]) * 60;
+            int minuite = tmpExitTimes[1] - tmpEntryTimes[1];
 
             int totalTimeToMinuite = hour + minuite;
 
