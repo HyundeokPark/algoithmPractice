@@ -1,16 +1,10 @@
 package com.company.programmers.lv2;
 
-import java.sql.Time;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -58,47 +52,39 @@ public class Lesson92341 {
             ParkingFee pk = parkingFees.get(carNumber);
             if(type.equals("OUT")){
                 pk.exitTime = time;
-                pk.calcFees();
-                tmp.put(pk.carNumber, tmp.get(pk.carNumber)+pk.parkingFees);
+                pk.totalParkingTime += pk.getParkingTimeToMinuite(pk.entryTime,pk.exitTime);
+                tmp.put(pk.carNumber, tmp.get(pk.carNumber)+pk.totalParkingTime);
                 parkingFees.remove(pk.carNumber);
             }else{
                 if(pk == null){
                     ParkingFee newPk = new ParkingFee(carNumber, time, type);
                     parkingFees.put(carNumber,newPk);
-                }
-            }
+                }            }
         }
         if(!parkingFees.isEmpty()){
             parkingFees.entrySet().stream().forEach(e-> {
-                e.getValue().calcFees();
-//                System.out.println(tmp.get(e.getKey()) + e.getValue().parkingFees);
-                tmp.put(e.getKey(),tmp.get(e.getKey()) + e.getValue().parkingFees);
+                e.getValue().totalParkingTime += e.getValue().getParkingTimeToMinuite(e.getValue().entryTime,e.getValue().exitTime);
+                tmp.put(e.getKey(),tmp.get(e.getKey()) + e.getValue().totalParkingTime);
             });
         }
-//        answerList = tmp.values().stream().sorted(Integer::compareTo)
-//            new Comparator<Integer>() {
-//                @Override
-//                public int compare(Integer o1, Integer o2) {
-//                    return String.CASE_INSENSITIVE_ORDER.compare(o1.carNumber , o2.carNumber);
-//                }
-//            }
-//        .collect(Collectors.toList());
-        List<Integer> tt  = tmp.values().stream().sorted(Integer::compareTo).collect(Collectors.toList());
-//        answer = answerList.stream().mapToInt(ParkingFee::getParkingFees).toArray();
+        answer = tmp.keySet().stream().sorted().collect(Collectors.toList())
+            .stream().map( k->{
+                return new ParkingFee("","","").calcFeesWithParkingTime(tmp.get(k));
+            }).collect(Collectors.toList())
+            .stream().mapToInt(e->e).toArray();
         return answer;
     }
-
 
     class ParkingFee{
         String entryTime;
         String exitTime = "23:59";
         String carNumber;
         int parkingFees;
+        int totalParkingTime = 0;
 
         public int getParkingFees(){
             return this.parkingFees;
         }
-
 
         ParkingFee(){
 
@@ -115,8 +101,8 @@ public class Lesson92341 {
         }
         public void calcFees(){
             //TODO: 시간계산이 필요
-            int totalParkingTime = this.getParkingTimeToMinuite(this.entryTime, this.exitTime);
-            this.parkingFees = this.calcFeesWithParkingTime(totalParkingTime);
+//            int totalParkingTime = this.getParkingTimeToMinuite(this.entryTime, this.exitTime);
+            this.parkingFees = this.calcFeesWithParkingTime(this.totalParkingTime);
         }
 
         public int getParkingTimeToMinuite(String entryTime, String exitTime){
@@ -135,8 +121,9 @@ public class Lesson92341 {
             if(totalTimeToMinuite<defaultParkingTime){
                 return defaultFee;
             }
-            double v = ((totalTimeToMinuite - defaultParkingTime) / unitTime);
-            return (int)(defaultFee+(Math.ceil(v)) * unitFee);
+            double v = ((double)(totalTimeToMinuite - defaultParkingTime) / unitTime);
+            int answer = (int)(defaultFee+((Math.ceil(v)) * unitFee));
+            return answer;
         }
 
 
